@@ -10,13 +10,11 @@ type wan struct {
 	name string
 }
 
-
 func Ping () bool {
-	log.Println("pinging")
 	pinger := exec.Command("fping" , "8.8.8.8")
 	err := pinger.Run()
-	log.Println("pinged with result" , err)
 	if err != nil {
+		log.Println("ping failed with result" , err)
 		return false
 	} else {
 		return true
@@ -37,6 +35,7 @@ func (w *wan) On () {
 	if err != nil {
 		log.Println(err)
 	}
+	UpdateDNS()
 }
 
 func (w *wan) Off () {
@@ -44,15 +43,6 @@ func (w *wan) Off () {
 	cmd := exec.Command("ifdown", w.name)
 	err := cmd.Run()
 	time.Sleep(3*time.Second)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func Reboot () {
-	log.Println("rebooting")
-	cmd := exec.Command("reboot")
-	err := cmd.Run()
 	if err != nil {
 		log.Println(err)
 	}
@@ -89,5 +79,15 @@ func Daemon () {
 		if err != true {
 			wan.Switch()
 		}
+	}
+}
+
+
+func UpdateDNS () {
+	log.Println("updating dns")
+	com := exec.Command("curl", "-4" , "https://nypunya.lan.melkote.com:comgoogle@dyn.dns.he.net/nic/update?hostname=nypunya.lan.melkote.com")
+	err := com.Run()
+	if err != nil {
+		log.Println(err)
 	}
 }
